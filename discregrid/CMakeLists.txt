@@ -90,14 +90,6 @@ endif()
 # Eigen library.
 find_package(Eigen3 REQUIRED)
 
-# Set include directories.
-include_directories(
-	include
-	include/Discregrid
-	${EIGEN3_INCLUDE_DIR}
-	../extern
-)
-
 # Disable stupid MSVC compiler warnings.
 if(WIN32)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
@@ -128,6 +120,15 @@ endif()
 # Discregrid has the following dependencies.
 #add_dependencies(Discregrid
 #)
+
+# Set include directories.
+target_include_directories(
+		Discregrid PUBLIC
+		include
+		include/Discregrid
+		${EIGEN3_INCLUDE_DIR}
+		../extern
+)
 
 # Set link libraries.
 target_link_libraries(Discregrid

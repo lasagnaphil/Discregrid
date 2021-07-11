@@ -9,6 +9,7 @@ class CubicLagrangeDiscreteGrid : public DiscreteGrid
 {
 public:
 
+    CubicLagrangeDiscreteGrid() : DiscreteGrid() {}
 	CubicLagrangeDiscreteGrid(std::string const& filename);
 	CubicLagrangeDiscreteGrid(Eigen::AlignedBox3d const& domain,
 		std::array<unsigned int, 3> const& resolution);
