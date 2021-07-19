@@ -675,6 +675,12 @@ CubicLagrangeDiscreteGrid::CubicLagrangeDiscreteGrid(AlignedBox3d const &domain,
 {
 }
 
+CubicLagrangeDiscreteGrid::CubicLagrangeDiscreteGrid(const AlignedBox3d& minimum_domain,
+                                                     const Vector3d& cell_size)
+    : DiscreteGrid(minimum_domain, cell_size)
+{
+}
+
 void CubicLagrangeDiscreteGrid::save(std::string const &filename) const
 {
 	auto out = std::ofstream(filename, std::ios::binary);

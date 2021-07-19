@@ -27,6 +27,18 @@ public:
 		m_inv_cell_size = m_cell_size.cwiseInverse();
 		m_n_cells = n.prod();
 	}
+	DiscreteGrid(Eigen::AlignedBox3d const& minimum_domain, Eigen::Vector3d const& cell_size)
+	    : m_cell_size(cell_size), m_n_fields(0u)
+	{
+        m_inv_cell_size = m_cell_size.cwiseInverse();
+	    Eigen::Vector3d res_f = minimum_domain.diagonal().cwiseProduct(m_inv_cell_size);
+	    Eigen::Vector3i res = res_f.array().ceil().cast<int>();
+	    m_resolution[0] = res[0]; m_resolution[1] = res[1]; m_resolution[2] = res[2];
+	    Eigen::Vector3d domain_size = m_cell_size.cwiseProduct(res.cast<double>());
+	    Eigen::Vector3d domain_center = minimum_domain.center();
+	    m_domain = Eigen::AlignedBox3d(domain_center - 0.5*domain_size, domain_center + 0.5*domain_size);
+	    m_n_cells = res.prod();
+	}
 	virtual ~DiscreteGrid() = default;
 
 	virtual void save(std::string const& filename) const = 0;

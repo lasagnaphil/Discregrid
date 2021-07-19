@@ -13,6 +13,8 @@ public:
 	CubicLagrangeDiscreteGrid(std::string const& filename);
 	CubicLagrangeDiscreteGrid(Eigen::AlignedBox3d const& domain,
 		std::array<unsigned int, 3> const& resolution);
+	CubicLagrangeDiscreteGrid(Eigen::AlignedBox3d const& minimum_domain,
+							  Eigen::Vector3d const& cell_size);
 
 	void save(std::string const& filename) const override;
 	void load(std::string const& filename) override;
