@@ -1,6 +1,7 @@
 #pragma once
 
 #include "discrete_grid.hpp"
+#include "mesh/triangle_mesh.hpp"
 
 namespace Discregrid
 {
@@ -61,6 +62,8 @@ public:
 
 	void forEachCell(unsigned int field_id,
 		std::function<void(unsigned int, Eigen::AlignedBox3d const&, unsigned int)> const& cb) const;
+
+	TriangleMesh marchingCubes(double isoLevel);
 
 private:
 
