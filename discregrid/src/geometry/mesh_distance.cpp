@@ -190,7 +190,7 @@ MeshDistance::callback(unsigned int node_index,
 }
 
 double
-MeshDistance::signedDistance(Vector3d const& x) const
+MeshDistance::signedDistance(Vector3d const& x, Eigen::Vector3d* nearest_point, Eigen::Vector3d* normal) const
 {
 	unsigned int nf;
 	auto ne = NearestEntity{};
@@ -228,6 +228,12 @@ MeshDistance::signedDistance(Vector3d const& x) const
 
 	if ((x - np).dot(n) < 0.0)
 		dist *= -1.0;
+
+	if (nearest_point)
+	    *nearest_point = np;
+
+	if (normal)
+	    *normal = n;
 
 	return dist;
 }
