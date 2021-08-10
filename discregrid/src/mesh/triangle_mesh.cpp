@@ -23,14 +23,14 @@ namespace Discregrid
 
 struct HalfedgeHasher
 {
-	HalfedgeHasher(std::vector<std::array<unsigned int, 3>> const& faces_)
+	HalfedgeHasher(std::vector<Eigen::Vector3i> const& faces_)
 		: faces(&faces_){}
 
 	std::size_t operator()(Halfedge const& he) const
 	{
-		unsigned int f = he.face();
-		unsigned int e = he.edge();
-		std::array<unsigned int, 2> v = { (*faces)[f][e], (*faces)[f][(e + 1) % 3] };
+		int f = he.face();
+		int e = he.edge();
+		std::array<int, 2> v = { (*faces)[f][e], (*faces)[f][(e + 1) % 3] };
 		if (v[0] > v[1])
 			std::swap(v[0], v[1]);
 
@@ -40,44 +40,44 @@ struct HalfedgeHasher
 		return seed;
 	}
 
-	std::vector<std::array<unsigned int, 3>> const* faces;
+	std::vector<Eigen::Vector3i> const* faces;
 };
 
 struct HalfedgeEqualTo
 {
-	HalfedgeEqualTo(std::vector<std::array<unsigned int, 3>> const& faces_)
+	HalfedgeEqualTo(std::vector<Eigen::Vector3i> const& faces_)
 		: faces(&faces_){}
 
 	bool operator()(Halfedge const& a, Halfedge const& b) const
 	{
-		unsigned int fa = a.face();
-		unsigned int ea = a.edge();
-		std::array<unsigned int, 2> va = { (*faces)[fa][ea], (*faces)[fa][(ea + 1) % 3] };
+		int fa = a.face();
+		int ea = a.edge();
+		std::array<int, 2> va = { (*faces)[fa][ea], (*faces)[fa][(ea + 1) % 3] };
 
-		unsigned int fb = b.face();
-		unsigned int eb = b.edge();
-		std::array<unsigned int, 2> vb = { (*faces)[fb][eb], (*faces)[fb][(eb + 1) % 3] };
+		int fb = b.face();
+		int eb = b.edge();
+		std::array<int, 2> vb = { (*faces)[fb][eb], (*faces)[fb][(eb + 1) % 3] };
 
 		return va[0] == vb[1] && va[1] == vb[0];
 	}
 
-	std::vector<std::array<unsigned int, 3>> const* faces;
+	std::vector<Eigen::Vector3i> const* faces;
 };
 
 typedef std::unordered_set<Halfedge, HalfedgeHasher, HalfedgeEqualTo>
 	FaceSet;
 
 TriangleMesh::TriangleMesh(
-	std::vector<Vector3d> const& vertices,
-	std::vector<std::array<unsigned int, 3>> const& faces)
+	std::vector<Vector3r> const& vertices,
+	std::vector<Eigen::Vector3i> const& faces)
 	: m_faces(faces), m_e2e(3 * faces.size()), m_vertices(vertices)
 	, m_v2e(vertices.size())
 {
 	construct();
 }
 
-TriangleMesh::TriangleMesh(double const* vertices,
-	unsigned int const* faces,
+TriangleMesh::TriangleMesh(real const* vertices,
+	int const* faces,
 	std::size_t nv, std::size_t nf)
 	: m_faces(nf), m_vertices(nv), m_e2e(3 * nf), m_v2e(nv)
 {
@@ -101,13 +101,13 @@ TriangleMesh::TriangleMesh(std::string const& path)
 	while (getline(in, line)) {
 	    if (line.substr(0, 2) == "v ") {
 	        std::istringstream s(line.substr(2));
-	        Vector3d v; s >> v.x(); s >> v.y(); s >> v.z();
+	        Vector3r v; s >> v.x(); s >> v.y(); s >> v.z();
 	        m_vertices.push_back(v);
 	    }
 	    else if (line.substr(0, 2) == "f ") {
 	        std::istringstream s(line.substr(2));
-	        std::array<unsigned int, 3> f;
-	        for (unsigned int j(0); j < 3; ++j)
+	        Eigen::Vector3i f;
+	        for (int j(0); j < 3; ++j)
 	        {
 	            std::string buf;
 	            s >> buf;
@@ -138,8 +138,8 @@ TriangleMesh::exportOBJ(std::string const& filename) const
 	for (auto const& f : m_faces)
 	{
 		outfile << "f";
-		for (auto v : f)
-			outfile << " " << v + 1;
+		for (int i = 0; i < 3; i++)
+			outfile << " " << f[i] + 1;
 		outfile << std::endl;
 	}
 
@@ -158,7 +158,7 @@ TriangleMesh::construct()
 		(m_faces.size() * 3) / 2,
 		HalfedgeHasher(m_faces),
 		HalfedgeEqualTo(m_faces));
-	for (unsigned int i(0); i < m_faces.size(); ++i)
+	for (int i(0); i < m_faces.size(); ++i)
 		for (unsigned char j(0); j < 3; ++j)
 		{
 		Halfedge he(i, j);
@@ -179,7 +179,7 @@ TriangleMesh::construct()
 	for (Halfedge const he : face_set)
 	{
 		m_b2e.push_back(he);
-		Halfedge b(static_cast<unsigned int>(m_b2e.size()) - 1u, 3);
+		Halfedge b(static_cast<int>(m_b2e.size()) - 1u, 3);
 		m_e2e[he.face()][he.edge()] = b;
 		m_v2e[target(he)] = b;
 
@@ -187,10 +187,10 @@ TriangleMesh::construct()
 	}
 
 #ifdef _DEBUG
-	for (unsigned int i(0); i < nFaces(); ++i)
+	for (int i(0); i < nFaces(); ++i)
 	{
 		Halfedge h(i, 0);
-		for (unsigned int j(0); j < 3; ++j)
+		for (int j(0); j < 3; ++j)
 		{
 			assert(faceVertex(i, j) == source(h));
 			h = h.next();
@@ -204,12 +204,12 @@ TriangleMesh::construct()
 	}
 }
 
-Vector3d
-TriangleMesh::computeFaceNormal(unsigned int f) const
+Vector3r
+TriangleMesh::computeFaceNormal(int f) const
 {
-	Vector3d const& x0 = vertex(faceVertex(f, 0));
-	Vector3d const& x1 = vertex(faceVertex(f, 1));
-	Vector3d const& x2 = vertex(faceVertex(f, 2));
+	Vector3r const& x0 = vertex(faceVertex(f, 0));
+	Vector3r const& x1 = vertex(faceVertex(f, 1));
+	Vector3r const& x2 = vertex(faceVertex(f, 2));
 
 	return (x1 - x0).cross(x2 - x0).normalized();
 }

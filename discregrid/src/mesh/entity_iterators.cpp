@@ -6,8 +6,8 @@ namespace Discregrid
 {
 
 
-unsigned int
-FaceIterator::vertex(unsigned int i) const
+int
+FaceIterator::vertex(int i) const
 {
     return m_mesh->faceVertex(m_index, i);
 }
@@ -24,8 +24,8 @@ FaceConstIterator::operator*()
     return m_mesh->face(m_index);
 }
 
-unsigned int&
-FaceIterator::vertex(unsigned int i)
+int&
+FaceIterator::vertex(int i)
 {
     return m_mesh->faceVertex(m_index, i);
 }
@@ -45,7 +45,7 @@ VertexConstIterator::operator*()
 
 
 
-unsigned int
+int
 VertexIterator::index() const
 {
     return m_index;
@@ -69,7 +69,7 @@ IncidentFaceIterator::operator++()
 }
 
 
-IncidentFaceIterator::IncidentFaceIterator(unsigned int v, TriangleMesh const* mesh) 
+IncidentFaceIterator::IncidentFaceIterator(int v, TriangleMesh const* mesh)
     : m_mesh(mesh), m_h(mesh->incident_halfedge(v))
 , m_begin(mesh->incident_halfedge(v))
 {

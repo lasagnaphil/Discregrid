@@ -21,13 +21,13 @@ class KDTree
 {
 public:
 
-    using TraversalPredicate = std::function<bool (unsigned int node_index, unsigned int depth)> ;
-    using TraversalCallback = std::function <void (unsigned int node_index, unsigned int depth)>;
+    using TraversalPredicate = std::function<bool (int node_index, int depth)> ;
+    using TraversalCallback = std::function <void (int node_index, int depth)>;
     using TraversalPriorityLess = std::function<bool (std::array<int, 2> const& nodes)>;
 
     struct Node
     {
-        Node(unsigned int b_, unsigned int n_)
+        Node(int b_, int n_)
             : children({{-1, -1}})
             , begin(b_), n(n_) {}
 
@@ -40,13 +40,13 @@ public:
         std::array<int, 2> children;
 
         // Index according entries in entity list.
-        unsigned int begin;
+        int begin;
 
         // Number of owned entries.
-        unsigned int n;
+        int n;
     };
 
-    struct QueueItem { unsigned int n, d; };
+    struct QueueItem { int n, d; };
     using TraversalQueue = std::queue<QueueItem>;
 
     KDTree(std::size_t n)
@@ -54,33 +54,33 @@ public:
 
     virtual ~KDTree() {}
 
-    Node const& node(unsigned int i) const { return m_nodes[i]; }
-    HullType const& hull(unsigned int i) const { return m_hulls[i]; }
-    unsigned int entity(unsigned int i) const { return m_lst[i]; }
+    Node const& node(int i) const { return m_nodes[i]; }
+    HullType const& hull(int i) const { return m_hulls[i]; }
+    int entity(int i) const { return m_lst[i]; }
 
     void construct();
     void update();
     void traverseDepthFirst(TraversalPredicate pred, TraversalCallback cb,
         TraversalPriorityLess const& pless = nullptr) const;
-    void traverseBreadthFirst(TraversalPredicate const& pred, TraversalCallback const& cb, unsigned int start_node = 0, TraversalPriorityLess const& pless = nullptr, TraversalQueue& pending = TraversalQueue()) const;
+    void traverseBreadthFirst(TraversalPredicate const& pred, TraversalCallback const& cb, int start_node = 0, TraversalPriorityLess const& pless = nullptr, TraversalQueue& pending = TraversalQueue()) const;
 
 protected:
 
-    void construct(unsigned int node, Eigen::AlignedBox3d const& box,
-        unsigned int b, unsigned int n);
-    void traverseDepthFirst(unsigned int node, unsigned int depth,
+    void construct(int node, AlignedBox3r const& box,
+        int b, int n);
+    void traverseDepthFirst(int node, int depth,
         TraversalPredicate pred, TraversalCallback cb, TraversalPriorityLess const& pless) const;
     void traverseBreadthFirst(TraversalQueue& pending,
         TraversalPredicate const& pred, TraversalCallback const& cb, TraversalPriorityLess const& pless = nullptr) const;
 
-    unsigned int addNode(unsigned int b, unsigned int n);
+    int addNode(int b, int n);
 
-    virtual Eigen::Vector3d const& entityPosition(unsigned int i) const = 0;
-    virtual void computeHull(unsigned int b, unsigned int n, HullType& hull) const = 0;
+    virtual Vector3r const& entityPosition(int i) const = 0;
+    virtual void computeHull(int b, int n, HullType& hull) const = 0;
 
 protected:
 
-    std::vector<unsigned int> m_lst;
+    std::vector<int> m_lst;
 
     std::vector<Node> m_nodes;
     std::vector<HullType> m_hulls;

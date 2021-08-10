@@ -117,7 +117,7 @@ static const uint32_t morton256_z[256] = {
 };
 
 inline
-uint64_t morton_lut(std::array<unsigned int, 3> const& x)
+uint64_t morton_lut(std::array<int, 3> const& x)
 {
 	uint64_t answer = 0;
 	answer = morton256_z[(x[2] >> 16) & 0xFF] | // we start by shifting the third byte, since we only look at the first 21 bits

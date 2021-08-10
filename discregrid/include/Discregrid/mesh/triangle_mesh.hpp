@@ -1,5 +1,6 @@
 #pragma once
 
+#include "types.hpp"
 #include "halfedge.hpp"
 #include "entity_containers.hpp"
 
@@ -18,11 +19,11 @@ class TriangleMesh
 
 public:
 
-	TriangleMesh(std::vector<Eigen::Vector3d> const& vertices, 
-		std::vector<std::array<unsigned int, 3>> const& faces);
+	TriangleMesh(std::vector<Vector3r> const& vertices,
+		std::vector<Eigen::Vector3i> const& faces);
 
-	TriangleMesh(double const* vertices,
-		unsigned int const* faces, 
+	TriangleMesh(real const* vertices,
+		int const* faces,
 		std::size_t nv, std::size_t nf);
 
 	TriangleMesh(std::string const& filename);
@@ -30,12 +31,12 @@ public:
 	void exportOBJ(std::string const& filename) const;
 
 	// Halfedge modifiers.
-	unsigned int source(Halfedge const h) const
+	int source(Halfedge const h) const
 	{
 		if (h.isBoundary()) return target(opposite(h));
 		return m_faces[h.face()][h.edge()];
 	}
-	unsigned int target(Halfedge const h) const
+	int target(Halfedge const h) const
 	{
 		if (h.isBoundary()) return source(opposite(h));
 		return source(h.next());
@@ -49,7 +50,7 @@ public:
 	// Container getters.
 	FaceContainer faces() { return FaceContainer(this); }
 	FaceConstContainer faces() const { return FaceConstContainer(this); }
-	IncidentFaceContainer incident_faces(unsigned int v) const { 
+	IncidentFaceContainer incident_faces(int v) const {
 		return IncidentFaceContainer(v, this); }
 	VertexContainer vertices() { return VertexContainer(this); }
 	VertexConstContainer vertices() const { return VertexConstContainer(this); }
@@ -60,37 +61,37 @@ public:
 	std::size_t nBorderEdges() const { return m_b2e.size(); }
 
 	// Entity getters.
-	unsigned int const& faceVertex(unsigned int f, unsigned int i) const 
+	int const& faceVertex(int f, int i) const
 	{
 		assert(i < 3);
 		assert(f < m_faces.size());
 		return m_faces[f][i];
 	}
-	unsigned int& faceVertex(unsigned int f, unsigned int i)
+	int& faceVertex(int f, int i)
 	{
 		assert(i < 3);
 		assert(f < m_faces.size());
 		return m_faces[f][i];
 	}
 
-	Eigen::Vector3d const& vertex(unsigned int i) const { return m_vertices[i]; }
-	Eigen::Vector3d& vertex(unsigned int i) { return m_vertices[i]; }
-	std::array<unsigned int, 3> const& face(unsigned int i) const { 
+	Vector3r const& vertex(int i) const { return m_vertices[i]; }
+	Vector3r& vertex(int i) { return m_vertices[i]; }
+	Eigen::Vector3i const& face(int i) const {
 		return m_faces[i]; }
-	std::array<unsigned int, 3>& face(unsigned int i) {
+	Eigen::Vector3i& face(int i) {
 		return m_faces[i];
 	}
-	Halfedge incident_halfedge(unsigned int v) const { return m_v2e[v]; }
+	Halfedge incident_halfedge(int v) const { return m_v2e[v]; }
 
 	// Data getters.
-	std::vector<Eigen::Vector3d> const& vertex_data() const { 
+	std::vector<Vector3r> const& vertex_data() const {
 		return m_vertices; }
-	std::vector<Eigen::Vector3d>& vertex_data() { return m_vertices; }    
-	std::vector<std::array<unsigned int, 3>> const& face_data() const { 
+	std::vector<Vector3r>& vertex_data() { return m_vertices; }
+	std::vector<Eigen::Vector3i> const& face_data() const {
 		return m_faces; }
-	std::vector<std::array<unsigned int, 3>>& face_data() { return m_faces; }
+	std::vector<Eigen::Vector3i>& face_data() { return m_faces; }
 
-	Eigen::Vector3d computeFaceNormal(unsigned int f) const;
+	Vector3r computeFaceNormal(int f) const;
 
 private:
 
@@ -98,8 +99,8 @@ private:
 
 private:
 
-	std::vector<Eigen::Vector3d> m_vertices;
-	std::vector<std::array<unsigned int, 3>> m_faces;
+	std::vector<Vector3r> m_vertices;
+	std::vector<Eigen::Vector3i> m_faces;
 	std::vector<std::array<Halfedge, 3>> m_e2e;
 	std::vector<Halfedge> m_v2e;
 	std::vector<Halfedge> m_b2e;

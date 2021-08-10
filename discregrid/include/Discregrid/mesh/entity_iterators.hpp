@@ -1,5 +1,6 @@
 #pragma once
 
+#include "types.hpp"
 #include "halfedge.hpp"
 
 #include <iterator>
@@ -13,7 +14,7 @@ class TriangleMesh;
 
 class FaceContainer;
 class FaceIterator : public
-	std::iterator<std::random_access_iterator_tag, std::array<unsigned int, 3>>
+	std::iterator<std::random_access_iterator_tag, Eigen::Vector3i>
 {
 public:
 
@@ -53,20 +54,20 @@ public:
 		return _Mytype(m_index - rhs, m_mesh);
 	}
 
-	unsigned int vertex(unsigned int i) const;
-	unsigned int& vertex(unsigned int i);
+	int vertex(int i) const;
+	int& vertex(int i);
 
 private:
 
 	friend class FaceContainer;
-	FaceIterator(unsigned int index, TriangleMesh* mesh)
+	FaceIterator(int index, TriangleMesh* mesh)
 		: m_index(index), m_mesh(mesh) {}
 
-	unsigned int m_index;
+	int m_index;
 	TriangleMesh* m_mesh;
 };
 class FaceConstIterator : public
-	std::iterator<std::random_access_iterator_tag, std::array<unsigned int, 3> const>
+	std::iterator<std::random_access_iterator_tag, Eigen::Vector3i const>
 {
 
 public:
@@ -107,16 +108,16 @@ public:
 		return _Mytype(m_index - rhs, m_mesh);
 	}
 
-	unsigned int vertex(unsigned int i) const;
-	unsigned int& vertex(unsigned int i);
+	int vertex(int i) const;
+	int& vertex(int i);
 
 private:
 
 	friend class FaceConstContainer;
-	FaceConstIterator(unsigned int index, TriangleMesh const* mesh)
+	FaceConstIterator(int index, TriangleMesh const* mesh)
 		: m_index(index), m_mesh(mesh) {}
 
-	unsigned int m_index;
+	int m_index;
 	TriangleMesh const* m_mesh;
 };
 
@@ -143,7 +144,7 @@ public:
 private:
 
 	friend class IncidentFaceContainer;
-	IncidentFaceIterator(unsigned int v, TriangleMesh const* mesh);
+	IncidentFaceIterator(int v, TriangleMesh const* mesh);
 	IncidentFaceIterator() : m_h(), m_begin(), m_mesh(nullptr) {}
 
 	Halfedge m_h, m_begin;
@@ -152,7 +153,7 @@ private:
 
 
 class VertexContainer;
-class VertexIterator : public std::iterator<std::random_access_iterator_tag, Eigen::Vector3d>
+class VertexIterator : public std::iterator<std::random_access_iterator_tag, Vector3r>
 {
 
 public:
@@ -193,22 +194,22 @@ public:
 		return _Mytype(m_index - rhs, m_mesh); 
 	}
 
-	unsigned int index() const;
+	int index() const;
 
 private:
 
 	friend class VertexContainer;
-	VertexIterator(unsigned int index, TriangleMesh* mesh)
+	VertexIterator(int index, TriangleMesh* mesh)
 		: m_index(index), m_mesh(mesh) {}
 
-	unsigned int m_index;
+	int m_index;
 	TriangleMesh* m_mesh;
 };
 
 
 class VertexConstContainer;
 class VertexConstIterator : 
-	public std::iterator<std::random_access_iterator_tag, Eigen::Vector3d const>
+	public std::iterator<std::random_access_iterator_tag, Vector3r const>
 {
 
 public:
@@ -249,15 +250,15 @@ public:
 		return _Mytype(m_index - rhs, m_mesh); 
 	}
 
-	unsigned int index() const;
+	int index() const;
 
 private:
 
 	friend class VertexConstContainer;
-	VertexConstIterator(unsigned int index, TriangleMesh const* mesh)
+	VertexConstIterator(int index, TriangleMesh const* mesh)
 		: m_index(index), m_mesh(mesh) {}
 
-	unsigned int m_index;
+	int m_index;
 	TriangleMesh const* m_mesh;
 };
 }

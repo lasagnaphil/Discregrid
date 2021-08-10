@@ -12,17 +12,17 @@ KDTree<HullType>::construct()
     std::iota(m_lst.begin(), m_lst.end(), 0);
 
     // Determine bounding box of considered domain.
-    auto box = Eigen::AlignedBox3d{};
+    auto box = AlignedBox3r{};
     for (auto i = 0u; i < m_lst.size(); ++i)
         box.extend(entityPosition(i));
 
-    auto ni = addNode(0, static_cast<unsigned int>(m_lst.size()));
-    construct(ni, box, 0, static_cast<unsigned int>(m_lst.size()));
+    auto ni = addNode(0, static_cast<int>(m_lst.size()));
+    construct(ni, box, 0, static_cast<int>(m_lst.size()));
 }
 
 template<typename HullType> void
-KDTree<HullType>::construct(unsigned int node, Eigen::AlignedBox3d const& box, unsigned int b,
-    unsigned int n)
+KDTree<HullType>::construct(int node, AlignedBox3r const& box, int b,
+    int n)
 {
     // If only one element is left end recursion.
     //if (n == 1) return;
@@ -46,7 +46,7 @@ KDTree<HullType>::construct(unsigned int node, Eigen::AlignedBox3d const& box, u
 
     // Sort range according to center of the longest side.
     std::sort(m_lst.begin() + b, m_lst.begin() + b + n, 
-        [&](unsigned int a, unsigned int b)
+        [&](int a, int b)
         {
             return entityPosition(a)(max_dir) < entityPosition(b)(max_dir);
         }
@@ -80,8 +80,8 @@ KDTree<HullType>::traverseDepthFirst(TraversalPredicate pred, TraversalCallback 
 }
 
 template<typename HullType> void
-KDTree<HullType>::traverseDepthFirst(unsigned int node_index, 
-    unsigned int depth, TraversalPredicate pred, TraversalCallback cb,
+KDTree<HullType>::traverseDepthFirst(int node_index,
+    int depth, TraversalPredicate pred, TraversalCallback cb,
     TraversalPriorityLess const& pless) const
 {
 
@@ -100,13 +100,13 @@ KDTree<HullType>::traverseDepthFirst(unsigned int node_index,
     //    {
     //        if (pless && !pless(node.children))
     //        {
-    //            pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
-    //            pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
+    //            pending.push({ static_cast<int>(node.children[1]), d + 1 });
+    //            pending.push({ static_cast<int>(node.children[0]), d + 1 });
     //        }
     //        else
     //        {
-    //            pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
-    //            pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
+    //            pending.push({ static_cast<int>(node.children[0]), d + 1 });
+    //            pending.push({ static_cast<int>(node.children[1]), d + 1 });
     //        }
     //    }
     //}
@@ -144,13 +144,13 @@ KDTree<HullType>::traverseDepthFirst(unsigned int node_index,
         //{
         //    if (pless && !pless(node.children))
         //    {
-        //        pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
-        //        pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
+        //        pending.push({ static_cast<int>(node.children[1]), d + 1 });
+        //        pending.push({ static_cast<int>(node.children[0]), d + 1 });
         //    }
         //    else
         //    {
-        //        pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
-        //        pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
+        //        pending.push({ static_cast<int>(node.children[0]), d + 1 });
+        //        pending.push({ static_cast<int>(node.children[1]), d + 1 });
         //    }
         //}
 }
@@ -158,7 +158,7 @@ KDTree<HullType>::traverseDepthFirst(unsigned int node_index,
 
 template <typename HullType> void
 KDTree<HullType>::traverseBreadthFirst(TraversalPredicate const& pred, 
-    TraversalCallback const& cb, unsigned int start_node, TraversalPriorityLess const& pless,
+    TraversalCallback const& cb, int start_node, TraversalPriorityLess const& pless,
     TraversalQueue& pending) const
 {
     //auto pending = TraversalQueue{};
@@ -168,22 +168,22 @@ KDTree<HullType>::traverseBreadthFirst(TraversalPredicate const& pred,
     traverseBreadthFirst(pending, pred, cb, pless);
 }
 
-template <typename HullType> unsigned int
-KDTree<HullType>::addNode(unsigned int b, unsigned int n)
+template <typename HullType> int
+KDTree<HullType>::addNode(int b, int n)
 {
     HullType hull;
     computeHull(b, n, hull);
     m_hulls.push_back(hull);
     m_nodes.push_back({ b, n });
-    return static_cast<unsigned int>(m_nodes.size() - 1);
+    return static_cast<int>(m_nodes.size() - 1);
 }
 
 template <typename HullType> void
 KDTree<HullType>::update()
 {
     traverseDepthFirst(
-        [&](unsigned int, unsigned int) { return true; },
-        [&](unsigned int node_index, unsigned int)
+        [&](int, int) { return true; },
+        [&](int node_index, int)
         {
             auto const& nd = node(node_index);
             computeHull(nd.begin, nd.n, hull(node_index));
@@ -208,13 +208,13 @@ KDTree<HullType>::traverseBreadthFirst(TraversalQueue& pending,
         {
             if (pless && !pless(node.children))
             {
-                pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
-                pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
+                pending.push({ static_cast<int>(node.children[1]), d + 1 });
+                pending.push({ static_cast<int>(node.children[0]), d + 1 });
             }
             else
             {
-                pending.push({ static_cast<unsigned int>(node.children[0]), d + 1 });
-                pending.push({ static_cast<unsigned int>(node.children[1]), d + 1 });
+                pending.push({ static_cast<int>(node.children[0]), d + 1 });
+                pending.push({ static_cast<int>(node.children[1]), d + 1 });
             }
         }
     }

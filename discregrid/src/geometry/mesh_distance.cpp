@@ -19,18 +19,18 @@ MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
 	auto max_threads = omp_get_max_threads();
 	m_queues.resize(max_threads);
 	m_nearest_face.resize(max_threads);
-	m_cache.resize(max_threads, FunctionValueCache([&](Vector3d const& xi){ return signedDistance(xi);}, 10000u));
-	m_ucache.resize(max_threads, FunctionValueCache([&](Vector3d const& xi){ return distance(xi);}, 10000u));
+	m_cache.resize(max_threads, FunctionValueCache([&](Vector3r const& xi){ return signedDistance(xi);}, 10000u));
+	m_ucache.resize(max_threads, FunctionValueCache([&](Vector3r const& xi){ return distance(xi);}, 10000u));
 
 	m_bsh.construct();
 
 	if (m_precomputed_normals)
 	{
 		m_face_normals.resize(m_mesh.nFaces());
-		m_vertex_normals.resize(mesh.nVertices(), Vector3d::Zero());
+		m_vertex_normals.resize(mesh.nVertices(), Vector3r::Zero());
 		std::transform(m_mesh.faces().begin(), m_mesh.faces().end(),
 			m_face_normals.begin(),
-			[&](std::array<unsigned int, 3> const& face)
+			[&](Eigen::Vector3i const& face)
 			{
 				auto const& x0 = m_mesh.vertex(face[0]);
 				auto const& x1 = m_mesh.vertex(face[1]);
@@ -42,7 +42,7 @@ MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
 				auto e2 = (x2 - x1).normalized();
 				auto e3 = (x0 - x2).normalized();
 
-				auto alpha = Vector3d{
+				auto alpha = Vector3r{
 					std::acos(e1.dot(-e3)), 
 					std::acos(e2.dot(-e1)),
 					std::acos(e3.dot(-e2)) };
@@ -58,8 +58,8 @@ MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
 
 // Thread-safe.
 double
-MeshDistance::distance(Vector3d const& x, Vector3d* nearest_point, 
-	unsigned int* nearest_face, NearestEntity* ne) const
+MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
+	int* nearest_face, NearestEntity* ne) const
 {
 	using namespace std::placeholders;
 
@@ -67,7 +67,7 @@ MeshDistance::distance(Vector3d const& x, Vector3d* nearest_point,
 	auto f = m_nearest_face[omp_get_thread_num()];
 	if (f < m_mesh.nFaces())
 	{
-		auto t = std::array<Vector3d const*, 3>{
+		auto t = std::array<Vector3r const*, 3>{
 			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
@@ -75,12 +75,12 @@ MeshDistance::distance(Vector3d const& x, Vector3d* nearest_point,
 		dist_candidate = std::sqrt(point_triangle_sqdistance(x, t));
 	}
 
-	auto pred = [&](unsigned int node_index, unsigned int)
+	auto pred = [&](int node_index, int)
 	{
 		return predicate(node_index, m_bsh, x, dist_candidate);
 	};
 
-	auto cb = [&](unsigned int node_index, unsigned int)
+	auto cb = [&](int node_index, int)
 	{
 		return callback(node_index, m_bsh, x, dist_candidate);
 	};
@@ -102,12 +102,12 @@ MeshDistance::distance(Vector3d const& x, Vector3d* nearest_point,
 	f = m_nearest_face[omp_get_thread_num()];
 	if (nearest_point)
 	{
-		auto t = std::array<Vector3d const*, 3>{
+		auto t = std::array<Vector3r const*, 3>{
 			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
 		};
-		auto np = Vector3d{};
+		auto np = Vector3r{};
 		auto ne_ = NearestEntity{};
 		auto dist2_ = point_triangle_sqdistance(x, t, &np, &ne_);
 		dist_candidate = std::sqrt(dist2_);
@@ -122,9 +122,9 @@ MeshDistance::distance(Vector3d const& x, Vector3d* nearest_point,
 }
 
 bool
-MeshDistance::predicate(unsigned int node_index, 
+MeshDistance::predicate(int node_index,
 	TriangleMeshBSH const& bsh,
-	Vector3d const& x, 
+	Vector3r const& x,
 	double& dist_candidate) const
 {
 	// If the furthest point on the current candidate hull is closer than the closest point on the next hull then we can skip it
@@ -145,9 +145,9 @@ MeshDistance::predicate(unsigned int node_index,
 }
 
 void
-MeshDistance::callback(unsigned int node_index, 
+MeshDistance::callback(int node_index,
 	TriangleMeshBSH const& bsh,
-	Vector3d const& x, 
+	Vector3r const& x,
 	double& dist_candidate) const
 {
 	auto const& node = m_bsh.node(node_index);
@@ -170,7 +170,7 @@ MeshDistance::callback(unsigned int node_index,
 	for (auto i = node.begin; i < node.begin + node.n; ++i)
 	{
 		auto f = m_bsh.entity(i);
-		auto t = std::array<Vector3d const*, 3>{
+		auto t = std::array<Vector3r const*, 3>{
 			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
 			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
@@ -190,14 +190,14 @@ MeshDistance::callback(unsigned int node_index,
 }
 
 double
-MeshDistance::signedDistance(Vector3d const& x, Eigen::Vector3d* nearest_point, Eigen::Vector3d* normal) const
+MeshDistance::signedDistance(Vector3r const& x, Vector3r* nearest_point, Vector3r* normal) const
 {
-	unsigned int nf;
+	int nf;
 	auto ne = NearestEntity{};
-	auto np = Vector3d{};
+	auto np = Vector3r{};
 	auto dist = distance(x, &np, &nf, &ne);
 	
-	auto n = Vector3d{};
+	auto n = Vector3r{};
 	switch (ne)
 	{
 	case NearestEntity::VN0:
@@ -210,13 +210,13 @@ MeshDistance::signedDistance(Vector3d const& x, Eigen::Vector3d* nearest_point, 
 		n = vertex_normal(m_mesh.faceVertex(nf, 2));
 		break;
 	case NearestEntity::EN0:
-		n = edge_normal({nf, 0});
+		n = edge_normal({static_cast<unsigned int>(nf), 0});
 		break;
 	case NearestEntity::EN1:
-		n = edge_normal({nf, 1});
+		n = edge_normal({static_cast<unsigned int>(nf), 1});
 		break;
 	case NearestEntity::EN2:
-		n = edge_normal({nf, 2});
+		n = edge_normal({static_cast<unsigned int>(nf), 2});
 		break;
 	case NearestEntity::FN:
 		n = face_normal(nf);
@@ -239,25 +239,25 @@ MeshDistance::signedDistance(Vector3d const& x, Eigen::Vector3d* nearest_point, 
 }
 
 double
-MeshDistance::signedDistanceCached(Vector3d const & x) const
+MeshDistance::signedDistanceCached(Vector3r const & x) const
 {
 	return m_cache[omp_get_thread_num()](x);
 }
 
 double
-MeshDistance::unsignedDistance(Vector3d const & x) const
+MeshDistance::unsignedDistance(Vector3r const & x) const
 {
 	return distance(x);
 }
 
 double
-MeshDistance::unsignedDistanceCached(Vector3d const & x) const
+MeshDistance::unsignedDistanceCached(Vector3r const & x) const
 {
 	return m_ucache[omp_get_thread_num()](x);
 }
 
-Vector3d
-MeshDistance::face_normal(unsigned int f) const
+Vector3r
+MeshDistance::face_normal(int f) const
 {
 	if (m_precomputed_normals)
 		return m_face_normals[f];
@@ -269,7 +269,7 @@ MeshDistance::face_normal(unsigned int f) const
 	return (x1 - x0).cross(x2 - x0).normalized();
 }
 
-Vector3d
+Vector3r
 MeshDistance::edge_normal(Halfedge const& h) const
 {
 	auto o = m_mesh.opposite(h);
@@ -284,14 +284,14 @@ MeshDistance::edge_normal(Halfedge const& h) const
 	return face_normal(h.face()) + face_normal(o.face());
 }
 
-Vector3d
-MeshDistance::vertex_normal(unsigned int v) const
+Vector3r
+MeshDistance::vertex_normal(int v) const
 {
 	if (m_precomputed_normals)
 		return m_vertex_normals[v];
 
 	auto const& x0 = m_mesh.vertex(v);
-	auto n = Vector3d{}; n.setZero();
+	auto n = Vector3r{}; n.setZero();
 	for (auto h : m_mesh.incident_faces(v))
 	{
 		assert(m_mesh.source(h) == v);

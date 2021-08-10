@@ -8,26 +8,26 @@ using namespace Eigen;
 namespace Discregrid
 {
 
-double
-point_triangle_sqdistance(Vector3d const& point, 
-    std::array<Vector3d const*, 3> const& triangle, 
-    Vector3d* nearest_point,
+real
+point_triangle_sqdistance(Vector3r const& point,
+    std::array<Vector3r const*, 3> const& triangle,
+    Vector3r* nearest_point,
     NearestEntity* ne)
 {
-    Vector3d diff = *triangle[0] - point;
-    Vector3d edge0 = *triangle[1] - *triangle[0];
-    Vector3d edge1 = *triangle[2] - *triangle[0];
-    double a00 = edge0.dot(edge0);
-    double a01 = edge0.dot(edge1);
-    double a11 = edge1.dot(edge1);
-    double b0 = diff.dot(edge0);
-    double b1 = diff.dot(edge1);
-    double c = diff.dot(diff);
-    double det = std::abs(a00*a11 - a01*a01);
-    double s = a01*b1 - a11*b0;
-    double t = a01*b0 - a00*b1;
+    Vector3r diff = *triangle[0] - point;
+    Vector3r edge0 = *triangle[1] - *triangle[0];
+    Vector3r edge1 = *triangle[2] - *triangle[0];
+    real a00 = edge0.dot(edge0);
+    real a01 = edge0.dot(edge1);
+    real a11 = edge1.dot(edge1);
+    real b0 = diff.dot(edge0);
+    real b1 = diff.dot(edge1);
+    real c = diff.dot(diff);
+    real det = std::abs(a00*a11 - a01*a01);
+    real s = a01*b1 - a11*b0;
+    real t = a01*b0 - a00*b1;
 
-    double d2 = -1.0;
+    real d2 = -1.0;
 
     if (s + t <= det)
     {
@@ -126,7 +126,7 @@ point_triangle_sqdistance(Vector3d const& point,
         {   // FN
             if (ne) *ne = NearestEntity::FN;
             // minimum at interior point
-            double invDet = (1) / det;
+            real invDet = (1) / det;
             s *= invDet;
             t *= invDet;
             d2 = s*(a00*s + a01*t + (2)*b0) +
@@ -135,7 +135,7 @@ point_triangle_sqdistance(Vector3d const& point,
     }
     else
     {
-        double tmp0, tmp1, numer, denom;
+        real tmp0, tmp1, numer, denom;
 
         if (s < 0)  // region 2
         {
