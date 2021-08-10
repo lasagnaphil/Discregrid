@@ -98,51 +98,51 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 {
 	auto res = Matrix<real, 32, 1>{};
 
-	auto x = xi[0];
-	auto y = xi[1];
-	auto z = xi[2];
+	real x = xi[0];
+	real y = xi[1];
+	real z = xi[2];
 
-	auto x2 = x * x;
-	auto y2 = y * y;
-	auto z2 = z * z;
+	real x2 = x * x;
+	real y2 = y * y;
+	real z2 = z * z;
 
-	auto _1mx = 1.0 - x;
-	auto _1my = 1.0 - y;
-	auto _1mz = 1.0 - z;
+	real _1mx = 1.0 - x;
+	real _1my = 1.0 - y;
+	real _1mz = 1.0 - z;
 
-	auto _1px = 1.0 + x;
-	auto _1py = 1.0 + y;
-	auto _1pz = 1.0 + z;
+	real _1px = 1.0 + x;
+	real _1py = 1.0 + y;
+	real _1pz = 1.0 + z;
 
-	auto _1m3x = 1.0 - 3.0 * x;
-	auto _1m3y = 1.0 - 3.0 * y;
-	auto _1m3z = 1.0 - 3.0 * z;
+	real _1m3x = 1.0 - 3.0 * x;
+	real _1m3y = 1.0 - 3.0 * y;
+	real _1m3z = 1.0 - 3.0 * z;
 
-	auto _1p3x = 1.0 + 3.0 * x;
-	auto _1p3y = 1.0 + 3.0 * y;
-	auto _1p3z = 1.0 + 3.0 * z;
+	real _1p3x = 1.0 + 3.0 * x;
+	real _1p3y = 1.0 + 3.0 * y;
+	real _1p3z = 1.0 + 3.0 * z;
 
-	auto _1mxt1my = _1mx * _1my;
-	auto _1mxt1py = _1mx * _1py;
-	auto _1pxt1my = _1px * _1my;
-	auto _1pxt1py = _1px * _1py;
+	real _1mxt1my = _1mx * _1my;
+	real _1mxt1py = _1mx * _1py;
+	real _1pxt1my = _1px * _1my;
+	real _1pxt1py = _1px * _1py;
 
-	auto _1mxt1mz = _1mx * _1mz;
-	auto _1mxt1pz = _1mx * _1pz;
-	auto _1pxt1mz = _1px * _1mz;
-	auto _1pxt1pz = _1px * _1pz;
+	real _1mxt1mz = _1mx * _1mz;
+	real _1mxt1pz = _1mx * _1pz;
+	real _1pxt1mz = _1px * _1mz;
+	real _1pxt1pz = _1px * _1pz;
 
-	auto _1myt1mz = _1my * _1mz;
-	auto _1myt1pz = _1my * _1pz;
-	auto _1pyt1mz = _1py * _1mz;
-	auto _1pyt1pz = _1py * _1pz;
+	real _1myt1mz = _1my * _1mz;
+	real _1myt1pz = _1my * _1pz;
+	real _1pyt1mz = _1py * _1mz;
+	real _1pyt1pz = _1py * _1pz;
 
-	auto _1mx2 = 1.0 - x2;
-	auto _1my2 = 1.0 - y2;
-	auto _1mz2 = 1.0 - z2;
+	real _1mx2 = 1.0 - x2;
+	real _1my2 = 1.0 - y2;
+	real _1mz2 = 1.0 - z2;
 
 	// Corner nodes.
-	auto fac = 1.0 / 64.0 * (9.0 * (x2 + y2 + z2) - 19.0);
+	real fac = 1.0 / 64.0 * (9.0 * (x2 + y2 + z2) - 19.0);
 	res[0] = fac * _1mxt1my * _1mz;
 	res[1] = fac * _1mxt1my * _1pz;
 	res[2] = fac * _1mxt1py * _1mz;
@@ -155,8 +155,8 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	// Edge nodes.
 
 	fac = 9.0 / 64.0 * _1mx2;
-	auto fact1m3x = fac * _1m3x;
-	auto fact1p3x = fac * _1p3x;
+	real fact1m3x = fac * _1m3x;
+	real fact1p3x = fac * _1p3x;
 	res[8] = fact1m3x * _1myt1mz;
 	res[9] = fact1m3x * _1myt1pz;
 	res[10] = fact1m3x * _1pyt1mz;
@@ -167,8 +167,8 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	res[15] = fact1p3x * _1pyt1pz;
 
 	fac = 9.0 / 64.0 * _1my2;
-	auto fact1m3y = fac * _1m3y;
-	auto fact1p3y = fac * _1p3y;
+	real fact1m3y = fac * _1m3y;
+	real fact1p3y = fac * _1p3y;
 	res[16] = fact1m3y * _1mxt1mz;
 	res[17] = fact1m3y * _1mxt1pz;
 	res[18] = fact1p3y * _1mxt1mz;
@@ -179,8 +179,8 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	res[23] = fact1p3y * _1pxt1pz;
 
 	fac = 9.0 / 64.0 * _1mz2;
-	auto fact1m3z = fac * _1m3z;
-	auto fact1p3z = fac * _1p3z;
+	real fact1m3z = fac * _1m3z;
+	real fact1p3z = fac * _1p3z;
 	res[24] = fact1m3z * _1mxt1my;
 	res[25] = fact1p3z * _1mxt1my;
 	res[26] = fact1m3z * _1mxt1py;
@@ -192,29 +192,29 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 
 	if (gradient)
 	{
-		auto &dN = *gradient;
+		auto& dN = *gradient;
 
-		auto _9t3x2py2pz2m19 = 9.0 * (3.0 * x2 + y2 + z2) - 19.0;
-		auto _9tx2p3y2pz2m19 = 9.0 * (x2 + 3.0 * y2 + z2) - 19.0;
-		auto _9tx2py2p3z2m19 = 9.0 * (x2 + y2 + 3.0 * z2) - 19.0;
-		auto _18x = 18.0 * x;
-		auto _18y = 18.0 * y;
-		auto _18z = 18.0 * z;
+		real _9t3x2py2pz2m19 = 9.0 * (3.0 * x2 + y2 + z2) - 19.0;
+		real _9tx2p3y2pz2m19 = 9.0 * (x2 + 3.0 * y2 + z2) - 19.0;
+		real _9tx2py2p3z2m19 = 9.0 * (x2 + y2 + 3.0 * z2) - 19.0;
+		real _18x = 18.0 * x;
+		real _18y = 18.0 * y;
+		real _18z = 18.0 * z;
 
-		auto _3m9x2 = 3.0 - 9.0 * x2;
-		auto _3m9y2 = 3.0 - 9.0 * y2;
-		auto _3m9z2 = 3.0 - 9.0 * z2;
+		real _3m9x2 = 3.0 - 9.0 * x2;
+		real _3m9y2 = 3.0 - 9.0 * y2;
+		real _3m9z2 = 3.0 - 9.0 * z2;
 
-		auto _2x = 2.0 * x;
-		auto _2y = 2.0 * y;
-		auto _2z = 2.0 * z;
+		real _2x = 2.0 * x;
+		real _2y = 2.0 * y;
+		real _2z = 2.0 * z;
 
-		auto _18xm9t3x2py2pz2m19 = _18x - _9t3x2py2pz2m19;
-		auto _18xp9t3x2py2pz2m19 = _18x + _9t3x2py2pz2m19;
-		auto _18ym9tx2p3y2pz2m19 = _18y - _9tx2p3y2pz2m19;
-		auto _18yp9tx2p3y2pz2m19 = _18y + _9tx2p3y2pz2m19;
-		auto _18zm9tx2py2p3z2m19 = _18z - _9tx2py2p3z2m19;
-		auto _18zp9tx2py2p3z2m19 = _18z + _9tx2py2p3z2m19;
+		real _18xm9t3x2py2pz2m19 = _18x - _9t3x2py2pz2m19;
+		real _18xp9t3x2py2pz2m19 = _18x + _9t3x2py2pz2m19;
+		real _18ym9tx2p3y2pz2m19 = _18y - _9tx2p3y2pz2m19;
+		real _18yp9tx2p3y2pz2m19 = _18y + _9tx2p3y2pz2m19;
+		real _18zm9tx2py2p3z2m19 = _18z - _9tx2py2p3z2m19;
+		real _18zp9tx2py2p3z2m19 = _18z + _9tx2py2p3z2m19;
 
 		dN(0, 0) = _18xm9t3x2py2pz2m19 * _1myt1mz;
 		dN(0, 1) = _1mxt1mz * _18ym9tx2p3y2pz2m19;
@@ -243,10 +243,10 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 
 		dN.topRows(8) /= 64.0;
 
-		auto _m3m9x2m2x = -_3m9x2 - _2x;
-		auto _p3m9x2m2x = _3m9x2 - _2x;
-		auto _1mx2t1m3x = _1mx2 * _1m3x;
-		auto _1mx2t1p3x = _1mx2 * _1p3x;
+		real _m3m9x2m2x = -_3m9x2 - _2x;
+		real _p3m9x2m2x = _3m9x2 - _2x;
+		real _1mx2t1m3x = _1mx2 * _1m3x;
+		real _1mx2t1p3x = _1mx2 * _1p3x;
 		dN(8, 0) = _m3m9x2m2x * _1myt1mz,
 			  dN(8, 1) = -_1mx2t1m3x * _1mz,
 			  dN(8, 2) = -_1mx2t1m3x * _1my;
@@ -272,10 +272,10 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 			   dN(15, 1) = _1mx2t1p3x * _1pz,
 			   dN(15, 2) = _1mx2t1p3x * _1py;
 
-		auto _m3m9y2m2y = -_3m9y2 - _2y;
-		auto _p3m9y2m2y = _3m9y2 - _2y;
-		auto _1my2t1m3y = _1my2 * _1m3y;
-		auto _1my2t1p3y = _1my2 * _1p3y;
+		real _m3m9y2m2y = -_3m9y2 - _2y;
+		real _p3m9y2m2y = _3m9y2 - _2y;
+		real _1my2t1m3y = _1my2 * _1m3y;
+		real _1my2t1p3y = _1my2 * _1p3y;
 		dN(16, 0) = -_1my2t1m3y * _1mz,
 			   dN(16, 1) = _m3m9y2m2y * _1mxt1mz,
 			   dN(16, 2) = -_1my2t1m3y * _1mx;
@@ -301,10 +301,10 @@ shape_function(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 			   dN(23, 1) = _p3m9y2m2y * _1pxt1pz,
 			   dN(23, 2) = _1my2t1p3y * _1px;
 
-		auto _m3m9z2m2z = -_3m9z2 - _2z;
-		auto _p3m9z2m2z = _3m9z2 - _2z;
-		auto _1mz2t1m3z = _1mz2 * _1m3z;
-		auto _1mz2t1p3z = _1mz2 * _1p3z;
+		real _m3m9z2m2z = -_3m9z2 - _2z;
+		real _p3m9z2m2z = _3m9z2 - _2z;
+		real _1mz2t1m3z = _1mz2 * _1m3z;
+		real _1mz2t1p3z = _1mz2 * _1p3z;
 		dN(24, 0) = -_1mz2t1m3z * _1my,
 			   dN(24, 1) = -_1mz2t1m3z * _1mx,
 			   dN(24, 2) = _m3m9z2m2z * _1mxt1my;
@@ -341,51 +341,51 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 {
 	auto res = Matrix<real, 32, 1>{};
 
-	auto x = xi[0];
-	auto y = xi[1];
-	auto z = xi[2];
+	real x = xi[0];
+	real y = xi[1];
+	real z = xi[2];
 
-	auto x2 = x * x;
-	auto y2 = y * y;
-	auto z2 = z * z;
+	real x2 = x * x;
+	real y2 = y * y;
+	real z2 = z * z;
 
-	auto _1mx = 1.0 - x;
-	auto _1my = 1.0 - y;
-	auto _1mz = 1.0 - z;
+	real _1mx = 1.0 - x;
+	real _1my = 1.0 - y;
+	real _1mz = 1.0 - z;
 
-	auto _1px = 1.0 + x;
-	auto _1py = 1.0 + y;
-	auto _1pz = 1.0 + z;
+	real _1px = 1.0 + x;
+	real _1py = 1.0 + y;
+	real _1pz = 1.0 + z;
 
-	auto _1m3x = 1.0 - 3.0 * x;
-	auto _1m3y = 1.0 - 3.0 * y;
-	auto _1m3z = 1.0 - 3.0 * z;
+	real _1m3x = 1.0 - 3.0 * x;
+	real _1m3y = 1.0 - 3.0 * y;
+	real _1m3z = 1.0 - 3.0 * z;
 
-	auto _1p3x = 1.0 + 3.0 * x;
-	auto _1p3y = 1.0 + 3.0 * y;
-	auto _1p3z = 1.0 + 3.0 * z;
+	real _1p3x = 1.0 + 3.0 * x;
+	real _1p3y = 1.0 + 3.0 * y;
+	real _1p3z = 1.0 + 3.0 * z;
 
-	auto _1mxt1my = _1mx * _1my;
-	auto _1mxt1py = _1mx * _1py;
-	auto _1pxt1my = _1px * _1my;
-	auto _1pxt1py = _1px * _1py;
+	real _1mxt1my = _1mx * _1my;
+	real _1mxt1py = _1mx * _1py;
+	real _1pxt1my = _1px * _1my;
+	real _1pxt1py = _1px * _1py;
 
-	auto _1mxt1mz = _1mx * _1mz;
-	auto _1mxt1pz = _1mx * _1pz;
-	auto _1pxt1mz = _1px * _1mz;
-	auto _1pxt1pz = _1px * _1pz;
+	real _1mxt1mz = _1mx * _1mz;
+	real _1mxt1pz = _1mx * _1pz;
+	real _1pxt1mz = _1px * _1mz;
+	real _1pxt1pz = _1px * _1pz;
 
-	auto _1myt1mz = _1my * _1mz;
-	auto _1myt1pz = _1my * _1pz;
-	auto _1pyt1mz = _1py * _1mz;
-	auto _1pyt1pz = _1py * _1pz;
+	real _1myt1mz = _1my * _1mz;
+	real _1myt1pz = _1my * _1pz;
+	real _1pyt1mz = _1py * _1mz;
+	real _1pyt1pz = _1py * _1pz;
 
-	auto _1mx2 = 1.0 - x2;
-	auto _1my2 = 1.0 - y2;
-	auto _1mz2 = 1.0 - z2;
+	real _1mx2 = 1.0 - x2;
+	real _1my2 = 1.0 - y2;
+	real _1mz2 = 1.0 - z2;
 
 	// Corner nodes.
-	auto fac = 1.0 / 64.0 * (9.0 * (x2 + y2 + z2) - 19.0);
+	real fac = 1.0 / 64.0 * (9.0 * (x2 + y2 + z2) - 19.0);
 	res[0] = fac * _1mxt1my * _1mz;
 	res[1] = fac * _1pxt1my * _1mz;
 	res[2] = fac * _1mxt1py * _1mz;
@@ -398,8 +398,8 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	// Edge nodes.
 
 	fac = 9.0 / 64.0 * _1mx2;
-	auto fact1m3x = fac * _1m3x;
-	auto fact1p3x = fac * _1p3x;
+	real fact1m3x = fac * _1m3x;
+	real fact1p3x = fac * _1p3x;
 	res[8] = fact1m3x * _1myt1mz;
 	res[9] = fact1p3x * _1myt1mz;
 	res[10] = fact1m3x * _1myt1pz;
@@ -410,8 +410,8 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	res[15] = fact1p3x * _1pyt1pz;
 
 	fac = 9.0 / 64.0 * _1my2;
-	auto fact1m3y = fac * _1m3y;
-	auto fact1p3y = fac * _1p3y;
+	real fact1m3y = fac * _1m3y;
+	real fact1p3y = fac * _1p3y;
 	res[16] = fact1m3y * _1mxt1mz;
 	res[17] = fact1p3y * _1mxt1mz;
 	res[18] = fact1m3y * _1pxt1mz;
@@ -422,8 +422,8 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 	res[23] = fact1p3y * _1pxt1pz;
 
 	fac = 9.0 / 64.0 * _1mz2;
-	auto fact1m3z = fac * _1m3z;
-	auto fact1p3z = fac * _1p3z;
+	real fact1m3z = fac * _1m3z;
+	real fact1p3z = fac * _1p3z;
 	res[24] = fact1m3z * _1mxt1my;
 	res[25] = fact1p3z * _1mxt1my;
 	res[26] = fact1m3z * _1mxt1py;
@@ -435,29 +435,29 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 
 	if (gradient)
 	{
-		auto &dN = *gradient;
+		auto& dN = *gradient;
 
-		auto _9t3x2py2pz2m19 = 9.0 * (3.0 * x2 + y2 + z2) - 19.0;
-		auto _9tx2p3y2pz2m19 = 9.0 * (x2 + 3.0 * y2 + z2) - 19.0;
-		auto _9tx2py2p3z2m19 = 9.0 * (x2 + y2 + 3.0 * z2) - 19.0;
-		auto _18x = 18.0 * x;
-		auto _18y = 18.0 * y;
-		auto _18z = 18.0 * z;
+		real _9t3x2py2pz2m19 = 9.0 * (3.0 * x2 + y2 + z2) - 19.0;
+		real _9tx2p3y2pz2m19 = 9.0 * (x2 + 3.0 * y2 + z2) - 19.0;
+		real _9tx2py2p3z2m19 = 9.0 * (x2 + y2 + 3.0 * z2) - 19.0;
+		real _18x = 18.0 * x;
+		real _18y = 18.0 * y;
+		real _18z = 18.0 * z;
 
-		auto _3m9x2 = 3.0 - 9.0 * x2;
-		auto _3m9y2 = 3.0 - 9.0 * y2;
-		auto _3m9z2 = 3.0 - 9.0 * z2;
+		real _3m9x2 = 3.0 - 9.0 * x2;
+		real _3m9y2 = 3.0 - 9.0 * y2;
+		real _3m9z2 = 3.0 - 9.0 * z2;
 
-		auto _2x = 2.0 * x;
-		auto _2y = 2.0 * y;
-		auto _2z = 2.0 * z;
+		real _2x = 2.0 * x;
+		real _2y = 2.0 * y;
+		real _2z = 2.0 * z;
 
-		auto _18xm9t3x2py2pz2m19 = _18x - _9t3x2py2pz2m19;
-		auto _18xp9t3x2py2pz2m19 = _18x + _9t3x2py2pz2m19;
-		auto _18ym9tx2p3y2pz2m19 = _18y - _9tx2p3y2pz2m19;
-		auto _18yp9tx2p3y2pz2m19 = _18y + _9tx2p3y2pz2m19;
-		auto _18zm9tx2py2p3z2m19 = _18z - _9tx2py2p3z2m19;
-		auto _18zp9tx2py2p3z2m19 = _18z + _9tx2py2p3z2m19;
+		real _18xm9t3x2py2pz2m19 = _18x - _9t3x2py2pz2m19;
+		real _18xp9t3x2py2pz2m19 = _18x + _9t3x2py2pz2m19;
+		real _18ym9tx2p3y2pz2m19 = _18y - _9tx2p3y2pz2m19;
+		real _18yp9tx2p3y2pz2m19 = _18y + _9tx2p3y2pz2m19;
+		real _18zm9tx2py2p3z2m19 = _18z - _9tx2py2p3z2m19;
+		real _18zp9tx2py2p3z2m19 = _18z + _9tx2py2p3z2m19;
 
 		dN(0, 0) = _18xm9t3x2py2pz2m19 * _1myt1mz;
 		dN(0, 1) = _1mxt1mz * _18ym9tx2p3y2pz2m19;
@@ -486,10 +486,10 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 
 		dN.topRows(8) /= 64.0;
 
-		auto _m3m9x2m2x = -_3m9x2 - _2x;
-		auto _p3m9x2m2x = _3m9x2 - _2x;
-		auto _1mx2t1m3x = _1mx2 * _1m3x;
-		auto _1mx2t1p3x = _1mx2 * _1p3x;
+		real _m3m9x2m2x = -_3m9x2 - _2x;
+		real _p3m9x2m2x = _3m9x2 - _2x;
+		real _1mx2t1m3x = _1mx2 * _1m3x;
+		real _1mx2t1p3x = _1mx2 * _1p3x;
 		dN(8, 0) = _m3m9x2m2x * _1myt1mz,
 			  dN(8, 1) = -_1mx2t1m3x * _1mz,
 			  dN(8, 2) = -_1mx2t1m3x * _1my;
@@ -515,10 +515,10 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 			   dN(15, 1) = _1mx2t1p3x * _1pz,
 			   dN(15, 2) = _1mx2t1p3x * _1py;
 
-		auto _m3m9y2m2y = -_3m9y2 - _2y;
-		auto _p3m9y2m2y = _3m9y2 - _2y;
-		auto _1my2t1m3y = _1my2 * _1m3y;
-		auto _1my2t1p3y = _1my2 * _1p3y;
+		real _m3m9y2m2y = -_3m9y2 - _2y;
+		real _p3m9y2m2y = _3m9y2 - _2y;
+		real _1my2t1m3y = _1my2 * _1m3y;
+		real _1my2t1p3y = _1my2 * _1p3y;
 		dN(16, 0) = -_1my2t1m3y * _1mz,
 			   dN(16, 1) = _m3m9y2m2y * _1mxt1mz,
 			   dN(16, 2) = -_1my2t1m3y * _1mx;
@@ -544,10 +544,10 @@ shape_function_(Vector3r const &xi, Matrix<real, 32, 3> *gradient = nullptr)
 			   dN(23, 1) = _p3m9y2m2y * _1pxt1pz,
 			   dN(23, 2) = _1my2t1p3y * _1px;
 
-		auto _m3m9z2m2z = -_3m9z2 - _2z;
-		auto _p3m9z2m2z = _3m9z2 - _2z;
-		auto _1mz2t1m3z = _1mz2 * _1m3z;
-		auto _1mz2t1p3z = _1mz2 * _1p3z;
+		real _m3m9z2m2z = -_3m9z2 - _2z;
+		real _p3m9z2m2z = _3m9z2 - _2z;
+		real _1mz2t1m3z = _1mz2 * _1m3z;
+		real _1mz2t1p3z = _1mz2 * _1p3z;
 		dN(24, 0) = -_1mz2t1m3z * _1my,
 			   dN(24, 1) = -_1mz2t1m3z * _1mx,
 			   dN(24, 2) = _m3m9z2m2z * _1mxt1my;
@@ -791,7 +791,7 @@ CubicLagrangeDiscreteGrid::addFunction(ContinuousFunction const &func, bool verb
 
 	auto t0_construction = high_resolution_clock::now();
 
-	auto n = Matrix<int, 3, 1>::Map(m_resolution.data());
+	auto& n = m_resolution;
 
 	auto nv = (n[0] + 1) * (n[1] + 1) * (n[2] + 1);
 	auto ne_x = (n[0] + 0) * (n[1] + 1) * (n[2] + 1);
@@ -805,7 +805,7 @@ CubicLagrangeDiscreteGrid::addFunction(ContinuousFunction const &func, bool verb
 	auto &coeffs = m_nodes.back();
 	coeffs.resize(n_nodes);
 
-	std::atomic_uint counter(0u);
+	std::atomic_int counter(0);
 	SpinLock mutex;
 	auto t0 = high_resolution_clock::now();
 
@@ -822,7 +822,7 @@ CubicLagrangeDiscreteGrid::addFunction(ContinuousFunction const &func, bool verb
 			else
 				c = std::numeric_limits<real>::max();
 
-			if (verbose && (++counter == n_nodes || duration_cast<milliseconds>(high_resolution_clock::now() - t0).count() > 1000u))
+			if (verbose && (++counter == n_nodes || duration_cast<milliseconds>(high_resolution_clock::now() - t0).count() > 1000))
 			{
 				std::async(std::launch::async, [&]() {
 					mutex.lock();
@@ -839,7 +839,7 @@ CubicLagrangeDiscreteGrid::addFunction(ContinuousFunction const &func, bool verb
 	m_cells.push_back({});
 	auto &cells = m_cells.back();
 	cells.resize(m_n_cells);
-	for (auto l = 0u; l < m_n_cells; ++l)
+	for (auto l = 0; l < m_n_cells; ++l)
 	{
 		auto k = l / (n[1] * n[0]);
 		auto temp = l % (n[1] * n[0]);
@@ -894,7 +894,7 @@ CubicLagrangeDiscreteGrid::addFunction(ContinuousFunction const &func, bool verb
 	m_cell_map.push_back({});
 	auto &cell_map = m_cell_map.back();
 	cell_map.resize(m_n_cells);
-	std::iota(cell_map.begin(), cell_map.end(), 0u);
+	std::iota(cell_map.begin(), cell_map.end(), 0);
 
 	if (verbose)
 	{
@@ -945,7 +945,7 @@ CubicLagrangeDiscreteGrid::interpolate(int field_id, Vector3r const& xi, const s
 	if (!gradient)
 	{
 		auto phi = 0.0;
-		for (auto j = 0u; j < 32u; ++j)
+		for (auto j = 0; j < 32; ++j)
 		{
 			auto v = cell[j];
 			auto c = m_nodes[field_id][v];
@@ -961,7 +961,7 @@ CubicLagrangeDiscreteGrid::interpolate(int field_id, Vector3r const& xi, const s
 
 	auto phi = 0.0;
 	gradient->setZero();
-	for (auto j = 0u; j < 32u; ++j)
+	for (auto j = 0; j < 32; ++j)
 	{
 		auto v = cell[j];
 		auto c = m_nodes[field_id][v];
@@ -1014,7 +1014,7 @@ CubicLagrangeDiscreteGrid::interpolate(int field_id, Vector3r const &x,
 		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, nullptr));
 		auto phi = 0.0;
 		auto N = shape_function_(xi, nullptr);
-		for (auto j = 0u; j < 32u; ++j)
+		for (auto j = 0; j < 32; ++j)
 		{
 			auto v = cell[j];
 			auto c = m_nodes[field_id][v];
@@ -1034,7 +1034,7 @@ CubicLagrangeDiscreteGrid::interpolate(int field_id, Vector3r const &x,
 	// TEST
 	//auto eps = 1.0e-6;
 	//auto ndN = Matrix<real, 32, 3>{};
-	//for (auto j = 0u; j < 3u; ++j)
+	//for (auto j = 0; j < 3u; ++j)
 	//{
 	//    auto xip = xi;
 	//    xip(j) += eps;
@@ -1049,7 +1049,7 @@ CubicLagrangeDiscreteGrid::interpolate(int field_id, Vector3r const &x,
 
 	auto phi = 0.0;
 	gradient->setZero();
-	for (auto j = 0u; j < 32u; ++j)
+	for (auto j = 0; j < 32; ++j)
 	{
 		auto v = cell[j];
 		auto c = m_nodes[field_id][v];
@@ -1179,8 +1179,7 @@ void CubicLagrangeDiscreteGrid::reduceField(int field_id, Predicate pred)
 				   [&coeffs_](int i) { return coeffs_[i]; });
 }
 
-void CubicLagrangeDiscreteGrid::forEachCell(int field_id,
-											std::function<void(int, AlignedBox3r const &, int)> const &cb) const
+void CubicLagrangeDiscreteGrid::forEachCell(std::function<void(int, AlignedBox3r const &, int)> const &cb) const
 {
 	auto n = m_resolution[0] * m_resolution[1] * m_resolution[2];
 	for (auto i = 0u; i < n; ++i)

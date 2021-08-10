@@ -60,8 +60,7 @@ public:
 
 	void reduceField(int field_id, Predicate pred) override;
 
-	void forEachCell(int field_id,
-		std::function<void(int, AlignedBox3r const&, int)> const& cb) const;
+	void forEachCell(std::function<void(int, AlignedBox3r const&, int)> const& cb) const;
 
 	TriangleMesh marchingCubes(real isoLevel);
 

@@ -57,13 +57,13 @@ MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
 }
 
 // Thread-safe.
-double
+real
 MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 	int* nearest_face, NearestEntity* ne) const
 {
 	using namespace std::placeholders;
 
-	auto dist_candidate = std::numeric_limits<double>::max();
+	auto dist_candidate = std::numeric_limits<real>::max();
 	auto f = m_nearest_face[omp_get_thread_num()];
 	if (f < m_mesh.nFaces())
 	{
@@ -125,7 +125,7 @@ bool
 MeshDistance::predicate(int node_index,
 	TriangleMeshBSH const& bsh,
 	Vector3r const& x,
-	double& dist_candidate) const
+	real& dist_candidate) const
 {
 	// If the furthest point on the current candidate hull is closer than the closest point on the next hull then we can skip it
 	auto const& hull = bsh.hull(node_index);
@@ -148,7 +148,7 @@ void
 MeshDistance::callback(int node_index,
 	TriangleMeshBSH const& bsh,
 	Vector3r const& x,
-	double& dist_candidate) const
+	real& dist_candidate) const
 {
 	auto const& node = m_bsh.node(node_index);
 	auto const& hull = m_bsh.hull(node_index);
@@ -189,7 +189,7 @@ MeshDistance::callback(int node_index,
 	}
 }
 
-double
+real
 MeshDistance::signedDistance(Vector3r const& x, Vector3r* nearest_point, Vector3r* normal) const
 {
 	int nf;
@@ -238,19 +238,19 @@ MeshDistance::signedDistance(Vector3r const& x, Vector3r* nearest_point, Vector3
 	return dist;
 }
 
-double
+real
 MeshDistance::signedDistanceCached(Vector3r const & x) const
 {
 	return m_cache[omp_get_thread_num()](x);
 }
 
-double
+real
 MeshDistance::unsignedDistance(Vector3r const & x) const
 {
 	return distance(x);
 }
 
-double
+real
 MeshDistance::unsignedDistanceCached(Vector3r const & x) const
 {
 	return m_ucache[omp_get_thread_num()](x);

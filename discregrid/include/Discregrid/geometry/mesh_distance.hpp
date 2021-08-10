@@ -9,7 +9,7 @@ namespace std {
 		std::size_t operator()(Discregrid::Vector3r const& x) const
 		{
 			std::size_t seed = 0;
-			std::hash<double> hasher;
+			std::hash<Discregrid::real> hasher;
 			seed ^= hasher(x[0]) + 0x9e3779b9 + (seed<<6) + (seed>>2);
 			seed ^= hasher(x[1]) + 0x9e3779b9 + (seed<<6) + (seed>>2);
 			seed ^= hasher(x[2]) + 0x9e3779b9 + (seed<<6) + (seed>>2);
@@ -58,7 +58,7 @@ class MeshDistance
 	{
 		bool operator<(Candidate const& other) const { return b < other.b; }
 		int node_index;
-		double b, w;
+		real b, w;
 	};
 
 public:
@@ -68,17 +68,17 @@ public:
 	// Returns the shortest unsigned distance from a given point x to
 	// the stored mesh.
 	// Thread-safe function.
-	double distance(Vector3r const& x, Vector3r* nearest_point = nullptr,
+	real distance(Vector3r const& x, Vector3r* nearest_point = nullptr,
 		int* nearest_face = nullptr, NearestEntity* ne = nullptr) const;
 
 	// Requires a closed two-manifold mesh as input data.
 	// Thread-safe function.
-	double signedDistance(Vector3r const& x,
+	real signedDistance(Vector3r const& x,
                           Vector3r* nearest_point = nullptr, Vector3r* normal = nullptr) const;
-	double signedDistanceCached(Vector3r const& x) const;
+	real signedDistanceCached(Vector3r const& x) const;
 
-	double unsignedDistance(Vector3r const& x) const;
-	double unsignedDistanceCached(Vector3r const& x) const;
+	real unsignedDistance(Vector3r const& x) const;
+	real unsignedDistanceCached(Vector3r const& x) const;
 
 private:
 
@@ -88,17 +88,17 @@ private:
 
 	void callback(int node_index, TriangleMeshBSH const& bsh,
 		Vector3r const& x,
-		double& dist) const;
+		real& dist) const;
 
 	bool predicate(int node_index, TriangleMeshBSH const& bsh,
-		Vector3r const& x, double& dist) const;
+		Vector3r const& x, real& dist) const;
 
 private:
 
 	TriangleMesh const& m_mesh;
 	TriangleMeshBSH m_bsh;
 
-	using FunctionValueCache = LRUCache<Vector3r, double>;
+	using FunctionValueCache = LRUCache<Vector3r, real>;
 	mutable std::vector<TriangleMeshBSH::TraversalQueue> m_queues;
 	mutable std::vector<int> m_nearest_face;
 	mutable std::vector<FunctionValueCache> m_cache;
