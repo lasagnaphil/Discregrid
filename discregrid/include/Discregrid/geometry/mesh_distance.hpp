@@ -62,6 +62,7 @@ class MeshDistance
 	};
 
 public:
+    MeshDistance() = default;
 
 	MeshDistance(TriangleMesh const& mesh, bool precompute_normals = true);
 
