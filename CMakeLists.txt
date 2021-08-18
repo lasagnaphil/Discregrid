@@ -32,6 +32,11 @@ set(CMAKE_DEBUG_POSTFIX "_d")
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH    "${PROJECT_BINARY_DIR}/bin")
 
+if(NOT TARGET span-lite)
+	add_library(span-lite INTERFACE)
+	target_include_directories(span-lite INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/extern/span-lite)
+endif()
+
 add_subdirectory(discregrid)
 
 option(BUILD_CMD_EXECUTABLE "Build command line executable" ON)

@@ -62,9 +62,7 @@ class MeshDistance
 	};
 
 public:
-    MeshDistance() = default;
-
-	MeshDistance(TriangleMesh const& mesh, bool precompute_normals = true);
+	MeshDistance(const TriangleMesh* mesh, bool precompute_normals = true);
 
 	// Returns the shortest unsigned distance from a given point x to
 	// the stored mesh.
@@ -96,7 +94,7 @@ private:
 
 private:
 
-	TriangleMesh const& m_mesh;
+	const TriangleMesh* m_mesh;
 	TriangleMeshBSH m_bsh;
 
 	using FunctionValueCache = LRUCache<Vector3r, real>;

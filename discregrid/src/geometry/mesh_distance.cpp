@@ -12,8 +12,8 @@ using namespace Eigen;
 namespace Discregrid
 {
 
-MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
-	: m_bsh(mesh.vertex_data(), mesh.face_data()), m_mesh(mesh)
+MeshDistance::MeshDistance(const TriangleMesh* mesh, bool precompute_normals)
+	: m_bsh(mesh->vertex_data(), mesh->face_data()), m_mesh(mesh)
 	, m_precomputed_normals(precompute_normals)
 {
 	auto max_threads = omp_get_max_threads();
@@ -26,15 +26,15 @@ MeshDistance::MeshDistance(TriangleMesh const& mesh, bool precompute_normals)
 
 	if (m_precomputed_normals)
 	{
-		m_face_normals.resize(m_mesh.nFaces());
-		m_vertex_normals.resize(mesh.nVertices(), Vector3r::Zero());
-		std::transform(m_mesh.faces().begin(), m_mesh.faces().end(),
+		m_face_normals.resize(m_mesh->nFaces());
+		m_vertex_normals.resize(mesh->nVertices(), Vector3r::Zero());
+		std::transform(m_mesh->faces().begin(), m_mesh->faces().end(),
 			m_face_normals.begin(),
 			[&](Eigen::Vector3i const& face)
 			{
-				auto const& x0 = m_mesh.vertex(face[0]);
-				auto const& x1 = m_mesh.vertex(face[1]);
-				auto const& x2 = m_mesh.vertex(face[2]);
+				auto const& x0 = m_mesh->vertex(face[0]);
+				auto const& x1 = m_mesh->vertex(face[1]);
+				auto const& x2 = m_mesh->vertex(face[2]);
 
 				auto n = (x1 - x0).cross(x2 - x0).normalized();
 
@@ -65,12 +65,12 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 
 	auto dist_candidate = std::numeric_limits<real>::max();
 	auto f = m_nearest_face[omp_get_thread_num()];
-	if (f < m_mesh.nFaces())
+	if (f < m_mesh->nFaces())
 	{
 		auto t = std::array<Vector3r const*, 3>{
-			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
+			&m_mesh->vertex(m_mesh->faceVertex(f, 0)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 1)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 2))
 		};
 		dist_candidate = std::sqrt(point_triangle_sqdistance(x, t));
 	}
@@ -103,9 +103,9 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 	if (nearest_point)
 	{
 		auto t = std::array<Vector3r const*, 3>{
-			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
+			&m_mesh->vertex(m_mesh->faceVertex(f, 0)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 1)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 2))
 		};
 		auto np = Vector3r{};
 		auto ne_ = NearestEntity{};
@@ -171,9 +171,9 @@ MeshDistance::callback(int node_index,
 	{
 		auto f = m_bsh.entity(i);
 		auto t = std::array<Vector3r const*, 3>{
-			&m_mesh.vertex(m_mesh.faceVertex(f, 0)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 1)),
-			&m_mesh.vertex(m_mesh.faceVertex(f, 2))
+			&m_mesh->vertex(m_mesh->faceVertex(f, 0)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 1)),
+			&m_mesh->vertex(m_mesh->faceVertex(f, 2))
 		};
 		auto dist2_ = point_triangle_sqdistance(x, t);
 		if (dist_candidate_2 > dist2_)
@@ -201,13 +201,13 @@ MeshDistance::signedDistance(Vector3r const& x, Vector3r* nearest_point, Vector3
 	switch (ne)
 	{
 	case NearestEntity::VN0:
-		n = vertex_normal(m_mesh.faceVertex(nf, 0));
+		n = vertex_normal(m_mesh->faceVertex(nf, 0));
 		break;
 	case NearestEntity::VN1:
-		n = vertex_normal(m_mesh.faceVertex(nf, 1));
+		n = vertex_normal(m_mesh->faceVertex(nf, 1));
 		break;
 	case NearestEntity::VN2:
-		n = vertex_normal(m_mesh.faceVertex(nf, 2));
+		n = vertex_normal(m_mesh->faceVertex(nf, 2));
 		break;
 	case NearestEntity::EN0:
 		n = edge_normal({static_cast<unsigned int>(nf), 0});
@@ -262,9 +262,9 @@ MeshDistance::face_normal(int f) const
 	if (m_precomputed_normals)
 		return m_face_normals[f];
 
-	auto const& x0 = m_mesh.vertex(m_mesh.faceVertex(f, 0));
-	auto const& x1 = m_mesh.vertex(m_mesh.faceVertex(f, 1));
-	auto const& x2 = m_mesh.vertex(m_mesh.faceVertex(f, 2));
+	auto const& x0 = m_mesh->vertex(m_mesh->faceVertex(f, 0));
+	auto const& x1 = m_mesh->vertex(m_mesh->faceVertex(f, 1));
+	auto const& x2 = m_mesh->vertex(m_mesh->faceVertex(f, 2));
 
 	return (x1 - x0).cross(x2 - x0).normalized();
 }
@@ -272,7 +272,7 @@ MeshDistance::face_normal(int f) const
 Vector3r
 MeshDistance::edge_normal(Halfedge const& h) const
 {
-	auto o = m_mesh.opposite(h);
+	auto o = m_mesh->opposite(h);
 
 	if (m_precomputed_normals)
 	{
@@ -290,16 +290,16 @@ MeshDistance::vertex_normal(int v) const
 	if (m_precomputed_normals)
 		return m_vertex_normals[v];
 
-	auto const& x0 = m_mesh.vertex(v);
+	auto const& x0 = m_mesh->vertex(v);
 	auto n = Vector3r{}; n.setZero();
-	for (auto h : m_mesh.incident_faces(v))
+	for (auto h : m_mesh->incident_faces(v))
 	{
-		assert(m_mesh.source(h) == v);
-		auto ve0 = m_mesh.target(h);
-		auto e0 = (m_mesh.vertex(ve0) - x0).eval();
+		assert(m_mesh->source(h) == v);
+		auto ve0 = m_mesh->target(h);
+		auto e0 = (m_mesh->vertex(ve0) - x0).eval();
 		e0.normalize();
-		auto ve1 = m_mesh.target(h.next());
-		auto e1 = (m_mesh.vertex(ve1) - x0).eval();
+		auto ve1 = m_mesh->target(h.next());
+		auto e1 = (m_mesh->vertex(ve1) - x0).eval();
 		e1.normalize();
 		auto alpha = std::acos((e0.dot(e1)));
 		n += alpha * e0.cross(e1);

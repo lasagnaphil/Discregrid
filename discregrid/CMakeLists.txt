@@ -132,6 +132,7 @@ target_include_directories(
 
 # Set link libraries.
 target_link_libraries(Discregrid
+		span-lite
 )
 
 install(TARGETS Discregrid

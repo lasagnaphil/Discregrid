@@ -10,9 +10,9 @@ namespace Discregrid
 {
 
 TriangleMeshBSH::TriangleMeshBSH(
-	std::vector<Vector3r> const& vertices,
-	std::vector<Vector3i> const& faces)
-	: super(faces.size()), m_faces(faces), m_vertices(vertices), 
+        std::span<const Vector3r> vertices,
+        std::span<const Eigen::Vector3i> faces)
+	: super(faces.size()), m_faces(faces), m_vertices(vertices),
 		m_tri_centers(faces.size())
 {
 	std::transform(m_faces.begin(), m_faces.end(), m_tri_centers.begin(),
@@ -50,8 +50,8 @@ TriangleMeshBSH::computeHull(int b, int n, BoundingSphere& hull) const
 }
 
 TriangleMeshBBH::TriangleMeshBBH(
-	std::vector<Vector3r> const& vertices,
-	std::vector<Vector3i> const& faces)
+	std::span<const Vector3r> vertices,
+	std::span<const Vector3i> faces)
 	: super(faces.size()), m_faces(faces), m_vertices(vertices), 
 		m_tri_centers(faces.size())
 {
@@ -87,8 +87,8 @@ PointCloudBSH::PointCloudBSH()
 {
 }
 
-PointCloudBSH::PointCloudBSH(std::vector<Vector3r> const& vertices)
-	: super(vertices.size()), m_vertices(&vertices)
+PointCloudBSH::PointCloudBSH(std::span<const Vector3r> vertices)
+	: super(vertices.size()), m_vertices(vertices)
 {
 
 }
@@ -96,7 +96,7 @@ PointCloudBSH::PointCloudBSH(std::vector<Vector3r> const& vertices)
 Vector3r const&
 PointCloudBSH::entityPosition(int i) const
 {
-	return (*m_vertices)[i];
+	return m_vertices[i];
 }
 
 void
@@ -104,7 +104,7 @@ PointCloudBSH::computeHull(int b, int n, BoundingSphere& hull) const
 {
 	auto vertices_subset = std::vector<Vector3r>(n);
 	for (int i = b; i < n + b; ++i)
-		vertices_subset[i - b] = (*m_vertices)[m_lst[i]];
+		vertices_subset[i - b] = m_vertices[m_lst[i]];
 
 	const BoundingSphere s(vertices_subset);
 
