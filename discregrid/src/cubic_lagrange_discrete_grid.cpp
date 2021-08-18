@@ -592,10 +592,10 @@ zValue(Vector3r const &x, real invCellSize)
 			key[i] = static_cast<int>(invCellSize * x[i]) - 1;
 	}
 
-	std::array<int, 3> p = {
-		static_cast<int>(static_cast<int64_t>(key[0]) - (std::numeric_limits<int>::lowest() + 1)),
-		static_cast<int>(static_cast<int64_t>(key[1]) - (std::numeric_limits<int>::lowest() + 1)),
-		static_cast<int>(static_cast<int64_t>(key[2]) - (std::numeric_limits<int>::lowest() + 1))};
+	std::array<unsigned int, 3> p = {
+		static_cast<unsigned int>(static_cast<int64_t>(key[0]) - (std::numeric_limits<int>::lowest() + 1)),
+		static_cast<unsigned int>(static_cast<int64_t>(key[1]) - (std::numeric_limits<int>::lowest() + 1)),
+		static_cast<unsigned int>(static_cast<int64_t>(key[2]) - (std::numeric_limits<int>::lowest() + 1))};
 
 	return morton_lut(p);
 }
