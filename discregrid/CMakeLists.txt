@@ -121,6 +121,10 @@ endif()
 #add_dependencies(Discregrid
 #)
 
+if (DISCREGRID_USE_DOUBLE)
+	target_compile_definitions(Discregrid PUBLIC DISCREGRID_USE_DOUBLE)
+endif()
+
 # Set include directories.
 target_include_directories(
 		Discregrid PUBLIC
