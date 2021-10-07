@@ -74,10 +74,8 @@ public:
 	// Thread-safe function.
 	real signedDistance(Vector3r const& x,
                           Vector3r* nearest_point = nullptr, Vector3r* normal = nullptr) const;
-	real signedDistanceCached(Vector3r const& x) const;
 
 	real unsignedDistance(Vector3r const& x) const;
-	real unsignedDistanceCached(Vector3r const& x) const;
 
 private:
 
@@ -87,7 +85,7 @@ private:
 
 	void callback(int node_index, TriangleMeshBSH const& bsh,
 		Vector3r const& x,
-		real& dist) const;
+		real& dist, int& nearest_face) const;
 
 	bool predicate(int node_index, TriangleMeshBSH const& bsh,
 		Vector3r const& x, real& dist) const;
@@ -98,11 +96,7 @@ private:
 	TriangleMeshBSH m_bsh;
 
 	using FunctionValueCache = LRUCache<Vector3r, real>;
-	mutable std::vector<TriangleMeshBSH::TraversalQueue> m_queues;
-	mutable std::vector<int> m_nearest_face;
-	mutable std::vector<FunctionValueCache> m_cache;
-	mutable std::vector<FunctionValueCache> m_ucache;
-	
+
 	std::vector<Vector3r> m_face_normals;
 	std::vector<Vector3r> m_vertex_normals;
 	bool m_precomputed_normals;

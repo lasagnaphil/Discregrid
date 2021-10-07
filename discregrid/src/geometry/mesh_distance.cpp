@@ -17,10 +17,6 @@ MeshDistance::MeshDistance(const TriangleMesh* mesh, bool precompute_normals)
 	, m_precomputed_normals(precompute_normals)
 {
 	auto max_threads = omp_get_max_threads();
-	m_queues.resize(max_threads);
-	m_nearest_face.resize(max_threads);
-	m_cache.resize(max_threads, FunctionValueCache([&](Vector3r const& xi){ return signedDistance(xi);}, 10000u));
-	m_ucache.resize(max_threads, FunctionValueCache([&](Vector3r const& xi){ return distance(xi);}, 10000u));
 
 	m_bsh.construct();
 
@@ -64,17 +60,6 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 	using namespace std::placeholders;
 
 	auto dist_candidate = std::numeric_limits<real>::max();
-	auto f = m_nearest_face[omp_get_thread_num()];
-	if (f < m_mesh->nFaces())
-	{
-		auto t = std::array<Vector3r const*, 3>{
-			&m_mesh->vertex(m_mesh->faceVertex(f, 0)),
-			&m_mesh->vertex(m_mesh->faceVertex(f, 1)),
-			&m_mesh->vertex(m_mesh->faceVertex(f, 2))
-		};
-		dist_candidate = std::sqrt(point_triangle_sqdistance(x, t));
-	}
-
 	auto pred = [&](int node_index, int)
 	{
 		return predicate(node_index, m_bsh, x, dist_candidate);
@@ -82,7 +67,7 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 
 	auto cb = [&](int node_index, int)
 	{
-		return callback(node_index, m_bsh, x, dist_candidate);
+		return callback(node_index, m_bsh, x, dist_candidate, *nearest_face);
 	};
 
 	auto pless = [&](std::array<int, 2> const& c)
@@ -95,17 +80,14 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 		return d0_2 < d1_2;
 	};
 
-	while (!m_queues[omp_get_thread_num()].empty())
-		m_queues[omp_get_thread_num()].pop();
 	m_bsh.traverseDepthFirst(pred, cb, pless);
 
-	f = m_nearest_face[omp_get_thread_num()];
 	if (nearest_point)
 	{
 		auto t = std::array<Vector3r const*, 3>{
-			&m_mesh->vertex(m_mesh->faceVertex(f, 0)),
-			&m_mesh->vertex(m_mesh->faceVertex(f, 1)),
-			&m_mesh->vertex(m_mesh->faceVertex(f, 2))
+			&m_mesh->vertex(m_mesh->faceVertex(*nearest_face, 0)),
+			&m_mesh->vertex(m_mesh->faceVertex(*nearest_face, 1)),
+			&m_mesh->vertex(m_mesh->faceVertex(*nearest_face, 2))
 		};
 		auto np = Vector3r{};
 		auto ne_ = NearestEntity{};
@@ -116,8 +98,6 @@ MeshDistance::distance(Vector3r const& x, Vector3r* nearest_point,
 		if (nearest_point)
 			*nearest_point = np;
 	}
-	if (nearest_face)
-		*nearest_face = f;
 	return dist_candidate;
 }
 
@@ -148,7 +128,8 @@ void
 MeshDistance::callback(int node_index,
 	TriangleMeshBSH const& bsh,
 	Vector3r const& x,
-	real& dist_candidate) const
+	real& dist_candidate,
+    int& nearest_face) const
 {
 	auto const& node = m_bsh.node(node_index);
 	auto const& hull = m_bsh.hull(node_index);
@@ -180,7 +161,7 @@ MeshDistance::callback(int node_index,
 		{
 			dist_candidate_2 = dist2_;
 			changed = true;
-			m_nearest_face[omp_get_thread_num()] = f;
+            nearest_face = f;
 		}
 	}
 	if (changed)
@@ -239,21 +220,9 @@ MeshDistance::signedDistance(Vector3r const& x, Vector3r* nearest_point, Vector3
 }
 
 real
-MeshDistance::signedDistanceCached(Vector3r const & x) const
-{
-	return m_cache[omp_get_thread_num()](x);
-}
-
-real
 MeshDistance::unsignedDistance(Vector3r const & x) const
 {
 	return distance(x);
-}
-
-real
-MeshDistance::unsignedDistanceCached(Vector3r const & x) const
-{
-	return m_ucache[omp_get_thread_num()](x);
 }
 
 Vector3r
