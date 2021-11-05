@@ -136,7 +136,7 @@ target_include_directories(
 
 # Set link libraries.
 target_link_libraries(Discregrid
-		span-lite
+		span-lite OpenMP::OpenMP_CXX
 )
 
 install(TARGETS Discregrid
